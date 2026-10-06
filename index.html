@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoopBreaker - Privacy-First OCD Utility</title>
+        <style>
+        /* --- BRAND DESIGN & TYPOGRAPHY --- */
+        body {
+            background-color: #0f172a; /* Premium deep slate blue */
+            color: #f8fafc; /* Crisp clean off-white */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            max-width: 500px;
+            margin: 40px auto;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            margin-bottom: 8px;
+            color: #38bdf8; /* Calming electric blue accent */
+        }
+
+        p {
+            color: #94a3b8; /* Muted silver for subtext */
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        /* --- PRODUCT DASHBOARD CONTAINERS --- */
+        #timer-box, #tracker-box {
+            background-color: #1e293b; /* Sleek card background */
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: #f1f5f9;
+        }
+
+        #timer-display {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #38bdf8;
+            margin: 12px 0 20px 0;
+            font-variant-numeric: tabular-nums; /* Prevents text jittering on countdown */
+        }
+
+        #resisted-count {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4ade80; /* Success green for wins */
+            display: block;
+            margin: 8px 0 20px 0;
+        }
+
+        /* --- THE SaaS INTERACTION BUTTONS --- */
+        button {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        #timer-btn {
+            background-color: #0284c7;
+            color: white;
+        }
+
+        #timer-btn:hover { background-color: #0369a1; }
+        #timer-btn:active { transform: scale(0.98); }
+        #timer-btn:disabled {
+            background-color: #334155;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        #win-btn {
+            background-color: #16a34a;
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        #win-btn:hover { background-color: #15803d; }
+        #win-btn:active { transform: scale(0.98); }
+
+        #reset-btn {
+            background-color: transparent;
+            color: #64748b;
+            font-size: 0.85rem;
+            padding: 8px;
+            text-decoration: underline;
+        }
+        #reset-btn:hover { color: #94a3b8; }
+
+
+            /* --- THOUGHT BOX ADDITIONAL DESIGN --- */
+        #thought-box {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+
+        #thought-box h2 {
+            text-align: center;
+        }
+
+        #thought-box p {
+            margin-bottom: 16px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            background-color: #0f172a;
+            color: #f8fafc;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: none;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: #38bdf8;
+        }
+
+        #defusion-response {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed #334155;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .response-message {
+            color: #f1f5f9 !important;
+            font-weight: 500;
+            background-color: #0284c7;
+            padding: 16px;
+            border-radius: 12px;
+        }
+
+        .grounding-tip {
+            background-color: #0f172a;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            margin-top: 16px;
+        }
+
+        .grounding-tip h3 {
+            margin-top: 0;
+            font-size: 1rem;
+            color: #4ade80;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+
+
+        /* --- NAVIGATION & TAB DESIGN --- */
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            background-color: #1e293b;
+            padding: 6px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .tab-btn {
+            background-color: transparent;
+            color: #94a3b8;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover {
+            color: #f1f5f9;
+            background-color: #334155;
+        }
+
+        .tab-btn.active {
+            background-color: #0284c7;
+            color: white;
+        }
+
+        .tab-content {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .info-card {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .info-card h2 {
+            text-align: left;
+            color: #38bdf8;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            margin-bottom: 0;
+            color: #cbd5e1;
+        }
+
+
+
+        /* --- FOCUS QUIZ DESIGN --- */
+        #quiz-answer {
+            width: 100%;
+            padding: 14px;
+            font-size: 1.5rem;
+            background-color: #0f172a;
+            color: #f8fafc;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            text-align: center;
+            outline: none;
+            box-sizing: border-box;
+        }
+        #quiz-answer:focus {
+            border-color: #38bdf8;
+        }
+        #progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: #0f172a;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #4ade80;
+            transition: width 0.3s ease;
+        }
+
+
+
+
+
+
+
+
+    </style>
+</head>
+<body>
+    <h1>LoopBreaker</h1>
+    <p>A zero-data, privacy-first tool to interrupt compulsive loops.</p>
+
+    <!-- THE NAVIGATION TABS CONTROLLER -->
+    <div class="tab-navigation">
+        <button id="nav-toolkit-btn" class="tab-btn active">Product Toolkit</button>
+        <button id="nav-edu-btn" class="tab-btn">OCD Knowledge Deck</button>
+        <button id="nav-quiz-btn" class="tab-btn">Focus Quiz</button>
+
+    </div>
+
+    <!-- TAB 1: THE TOOLKIT VIEW -->
+    <div id="toolkit-view" class="tab-content">
+        <!-- SECTION 1: THE PRODUCT UTILITY (ERP) -->
+        <div id="timer-box">
+            <h2>ERP Delay Engine</h2>
+            <p id="timer-display">60s</p>
+            <button id="timer-btn">Delay the Loop</button>
+        </div>
+
+        <!-- SECTION 2: THE METRICS & RETENTION -->
+        <div id="tracker-box">
+            <h2>Your Metrics</h2>
+            <p>compulsions Resisted: <span id="resisted-count">0</span></p>
+            <button id="win-btn">+1 Resisted</button>
+            <button id="reset-btn">Reset Metrics</button>
+        </div>
+
+        <!-- SECTION 3: THE DEEP THOUGHT DEFUSION MATRIX -->
+        <div id="thought-box">
+            <h2>Thought Defusion Deck</h2>
+            <p id="instruction-text">Write your scary, taboo, or intense thought below. Then, stop typing and wait 5 seconds.</p>
+            <textarea id="thought-input" placeholder="Type the intrusive thought here... Let it out."></textarea>
+            <div id="defusion-response" class="hidden">
+                <p class="response-message">Now you see the distance between the thoughts and you. It's got nothing but fear and action against. Remember that only action against—not for—comes, so continue to act against by acting for yourself. Go and have a good day. The thought stays here.</p>
+                
+                <div class="grounding-tip">
+                    <h3>Try this grounding technique:</h3>
+                    <p>Plant both feet flat on the floor. Take one deep breath, run your hands under cold water, or drop and do 3 steady push-ups right now. Your body is yours.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: THE EDUCATION VIEW -->
+    <div id="edu-view" class="tab-content hidden">
+        <div class="info-card">
+            <h2>The Glitchy Alarm System</h2>
+            <p>OCD is not a moral failing or a personality trait. It is a biological glitch where the brain's <strong>amygdala</strong> triggers a false "Code Red" survival response to random data. The threat feels 100% real, but the alarm itself is completely empty.</p>
+        </div>
+
+        <div class="info-card">
+            <h2>The Reassurance Trap</h2>
+            <p>When an intrusive thought strikes, your brain demands 100% certainty ("Am I safe?", "Am I a good person?"). Trying to answer this or using mental tricks to fix it acts as a reward for the glitch, causing it to return stronger every 3 minutes.</p>
+        </div>
+
+        <div class="info-card">
+            <h2>The Core Cure: ERP</h2>
+            <p><strong>Exposure and Response Prevention</strong> means letting the scary thought sit in your mind completely unmanaged. By delaying your reaction and refusing to perform a mental ritual, you train your brain to realize that the danger is artificial.</p>
+        </div>
+    </div>
+    <!-- TAB 3: THE FOCUS QUIZ ENGINE -->
+    <div id="quiz-view" class="tab-content hidden">
+        <div id="quiz-box" class="info-card" style="text-align: center;">
+            <h2>Cognitive Focus Engine</h2>
+            <p id="quiz-intro">Engage your logical brain to interrupt the emotional loop. Solve 15 rapid arithmetic questions.</p>
+            
+            <div id="quiz-game" class="hidden">
+                <div id="progress-bar-container">
+                    <div id="progress-bar"></div>
+                </div>
+                <p id="question-count">Question 1 of 15</p>
+                <h3 id="quiz-question" style="font-size: 2.5rem; color: #38bdf8; margin: 15px 0;">7 × 8</h3>
+                <input type="number" id="quiz-answer" placeholder="Your answer..." autocomplete="off">
+                <button id="quiz-submit-btn" style="margin-top: 15px; background-color: #38bdf8; color: #0f172a;">Submit Answer</button>
+            </div>
+
+            <button id="start-quiz-btn">Start 15-Question Focus Quiz</button>
+        </div>
+    </div>
+
+
+ <script src="script.js"></script>
+</body>
+
+</html>
